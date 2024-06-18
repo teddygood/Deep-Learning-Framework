@@ -7,35 +7,48 @@ class Variable:
             if not isinstance(data, np.ndarray):
                 raise TypeError('{} is not supported'.format(type(data)))
 
-        # data, grad is ndarray
         self.data = data
         self.grad = None
         self.creator = None
+        self.generation = 0
 
     def set_creator(self, func):
         self.creator = func
+        self.generation = func.generation + 1
+
+    def cleargrad(self):
+        self.grad = None
 
     def backward(self):
-
         if self.grad is None:
             self.grad = np.ones_like(self.data)
 
-        # Implement with recursive
-        # f = self.creator # 1. Get function
-        # if f is not None:
-        #     x = f.input # 2. Get input of function
-        #     x.grad = f.backward(self.grad) # 3. Call function's backward method
-        #     x.backward() # 4. Recursive call
+        funcs = []
+        seen_set = set()
 
-        # Implement with while loop
-        funcs = [self.creator]
+        def add_func(f):
+            if f not in seen_set:
+                funcs.append(f)
+                seen_set.add(f)
+                funcs.sort(key=lambda x: x.generation)
+
+        add_func(self.creator)
+
         while funcs:
-            f = funcs.pop()  # Get function
-            x, y = f.input, f.output  # Get input, output of function
-            x.grad = f.backward(y.grad)  # Call function's backward method
+            f = funcs.pop()
+            gys = [output.grad for output in f.outputs]
+            gxs = f.backward(*gys)
+            if not isinstance(gxs, tuple):
+                gxs = (gxs,)
 
-            if x.creator is not None:
-                funcs.append(x.creator)  # Add previous function to list
+            for x, gx in zip(f.inputs, gxs):
+                if x.grad is None:
+                    x.grad = gx
+                else:
+                    x.grad = x.grad + gx
+
+                if x.creator is not None:
+                    add_func(x.creator)
 
 
 def as_array(x):

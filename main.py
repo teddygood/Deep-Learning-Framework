@@ -1,14 +1,16 @@
 import numpy as np
 from variable import Variable
-from function import square, exp
-import unittest
+from function import square, exp, add
+
 
 def main():
-    x = Variable(np.array(0.5))
-    y = square(exp(square(x)))
+    x = Variable(np.array(2.0))
+    a = square(x)
+    y = add(square(a), square(a))
     y.backward()
 
-    print(f'x: {x.data}, y: {y.data}, x.grad: {x.grad}')
+    print(y.data)
+    print(x.grad)
 
 
 if __name__ == '__main__':
