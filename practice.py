@@ -11,11 +11,22 @@ class Variable:
         self.creator = func
 
     def backward(self):
-        f = self.creator # 1. Get function
-        if f is not None:
-            x = f.input # 2. Get input of function
-            x.grad = f.backward(self.grad) # 3. Call function's backward method
-            x.backward() # 4. Recursive call
+        # Implement with recursive
+        # f = self.creator # 1. Get function
+        # if f is not None:
+        #     x = f.input # 2. Get input of function
+        #     x.grad = f.backward(self.grad) # 3. Call function's backward method
+        #     x.backward() # 4. Recursive call
+
+        # Implement with while loop
+        funcs = [self.creator]
+        while funcs:
+            f = funcs.pop() # Get function
+            x, y = f.input, f.output # Get input, output of function
+            x.grad = f.backward(y.grad) # Call function's backward method
+
+            if x.creator is not None:
+                funcs.append(x.creator) # Add previous function to list
 
 class Function:
     def __call__(self, input):
