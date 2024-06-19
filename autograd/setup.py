@@ -1,5 +1,5 @@
 from autograd.variable import Variable
-from autograd.function import add, mul, neg, sub, rsub, div, rdiv, pow
+from autograd.operation import add, mul, neg, sub, rsub, div, rdiv, pow
 
 
 def setup_variable():
