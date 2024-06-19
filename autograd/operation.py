@@ -14,6 +14,7 @@ class Function:
     def __call__(self, *inputs):
         inputs = [as_variable(x) for x in inputs]
 
+        # feed-forward
         xs = [x.data for x in inputs]
         ys = self.forward(*xs)
         if not isinstance(ys, tuple):
@@ -22,6 +23,8 @@ class Function:
 
         if Config.enable_backprop:
             self.generation = max([x.generation for x in inputs])
+
+            # make connection between Variable and Function
             for output in outputs:
                 output.set_creator(self)
             self.inputs = inputs
@@ -56,7 +59,7 @@ class Mul(Function):
         return y
 
     def backward(self, gy):
-        x0, x1 = self.inputs[0].data, self.inputs[1].data
+        x0, x1 = self.inputs
         return gy * x1, gy * x0
 
 
@@ -102,7 +105,7 @@ class Div(Function):
         return y
 
     def backward(self, gy):
-        x0, x1 = self.inputs[0].data, self.inputs[1].data
+        x0, x1 = self.inputs
         gx0 = gy / x1
         gx1 = gy * (-x0 / x1 ** 2)
         return gx0, gx1
@@ -127,9 +130,8 @@ class Pow(Function):
         return y
 
     def backward(self, gy):
-        x = self.inputs[0].data
+        x, = self.inputs
         c = self.c
-
         gx = c * x ** (c - 1) * gy
         return gx
 

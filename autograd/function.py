@@ -8,9 +8,32 @@ class Sin(Function):
         return y
 
     def backward(self, gy):
-        x = self.inputs[0].data
-        gx = gy * np.cos(x)
+        x, = self.inputs
+        gx = gy * cos(x)
         return gx
 
 def sin(x):
     return Sin()(x)
+
+class Cos(Function):
+    def forward(self, x):
+        y = np.cos(x)
+        return y
+
+    def backward(self, gy):
+        x, = self.inputs
+        gx = gy * -sin(x)
+        return gx
+
+def cos(x):
+    return Cos()(x)
+
+class Tanh(Function):
+    def forward(self, x):
+        y = np.tanh(x)
+        return y
+
+    def backward(self, gy):
+        y = self.outputs[0]()
+        gx = gy * (1 - y * y)
+        return gx

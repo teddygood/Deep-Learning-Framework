@@ -1,5 +1,5 @@
 import numpy as np
-
+from autograd.config import using_config
 
 class Variable:
     def __init__(self, data, name=None):
@@ -45,9 +45,9 @@ class Variable:
     def cleargrad(self):
         self.grad = None
 
-    def backward(self, retain_grad=False):
+    def backward(self, retain_grad=False, create_graph=False):
         if self.grad is None:
-            self.grad = np.ones_like(self.data)
+            self.grad = Variable(np.ones_like(self.data))
 
         funcs = []
         seen_set = set()
@@ -62,10 +62,14 @@ class Variable:
 
         while funcs:
             f = funcs.pop()
+
+            # back propagation
             gys = [output().grad for output in f.outputs]  # output is weakref
-            gxs = f.backward(*gys)
-            if not isinstance(gxs, tuple):
-                gxs = (gxs,)
+
+            with using_config('enable_backprop', create_graph):
+                gxs = f.backward(*gys) # main backward
+                if not isinstance(gxs, tuple):
+                    gxs = (gxs,)
 
             for x, gx in zip(f.inputs, gxs):
                 if x.grad is None:

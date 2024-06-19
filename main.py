@@ -1,24 +1,28 @@
 import numpy as np
+import autograd.function as F
 from autograd import Variable
-from autograd.benchmark import rosenbrock
+from autograd.benchmark import rosenbrock, f
 
 def main():
-    x0 = Variable(np.array(0.0))
-    x1 = Variable(np.array(2.0))
-    lr = 0.001
-    iters = 1000
+    x = Variable(np.array(2.0))
+    y = f(x)
+    y.backward(create_graph=True)
+    print(x.grad)
 
-    for i in range(iters):
-        print(x0, x1)
+    gx = x.grad
+    x.cleargrad()
+    gx.backward()
+    print(x.grad)
 
-        y = rosenbrock(x0, x1)
+    y = F.sin(x)
+    y.backward(create_graph=True)
 
-        x0.cleargrad()
-        x1.cleargrad()
-        y.backward()
+    for i in range(3):
+        gx = x.grad
+        x.cleargrad()
+        gx.backward(create_graph=True)
+        print(x.grad)
 
-        x0.data -= lr * x0.grad
-        x1.data -= lr * x1.grad
 
 if __name__ == '__main__':
     main()
