@@ -1,27 +1,21 @@
 import numpy as np
-import autograd.function as F
 from autograd import Variable
-from autograd.benchmark import rosenbrock, f
+from autograd.example import higher_order_example, double_backprop_ex, sin_higher_order_derivative
+
 
 def main():
+
+    # higher order example
     x = Variable(np.array(2.0))
-    y = f(x)
-    y.backward(create_graph=True)
-    print(x.grad)
+    higher_order_example(x)
 
-    gx = x.grad
-    x.cleargrad()
-    gx.backward()
-    print(x.grad)
+    # sin higher order derivative
+    x = Variable(np.array(2.0))
+    sin_higher_order_derivative(x)
 
-    y = F.sin(x)
-    y.backward(create_graph=True)
-
-    for i in range(3):
-        gx = x.grad
-        x.cleargrad()
-        gx.backward(create_graph=True)
-        print(x.grad)
+    # double backpropagation
+    x = Variable(np.array(2.0))
+    double_backprop_ex(x)
 
 
 if __name__ == '__main__':

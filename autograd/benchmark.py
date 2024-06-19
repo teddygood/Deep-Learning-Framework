@@ -17,8 +17,3 @@ def goldstein(x, y):
 def rosenbrock(x0, x1):
     y = 100 * (x1 - x0 ** 2) ** 2 + (1 - x0) ** 2
     return y
-
-
-def f(x):
-    y = x ** 4 - 2 * x ** 2
-    return y
