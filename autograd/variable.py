@@ -2,6 +2,8 @@ import numpy as np
 
 
 class Variable:
+    __array_priority__ = 200
+
     def __init__(self, data, name=None):
         if data is not None:
             if not isinstance(data, np.ndarray):
@@ -62,7 +64,7 @@ class Variable:
 
         while funcs:
             f = funcs.pop()
-            gys = [output().grad for output in f.outputs]
+            gys = [output().grad for output in f.outputs]  # output is weakref
             gxs = f.backward(*gys)
             if not isinstance(gxs, tuple):
                 gxs = (gxs,)
@@ -78,10 +80,10 @@ class Variable:
 
             if not retain_grad:
                 for y in f.outputs:
-                    y().grad = None # y() -> y is weakref
+                    y().grad = None  # y is weakref
 
 
-def as_array(x):
-    if np.isscalar(x):
-        return np.array(x)
-    return x
+def as_variable(obj):
+    if isinstance(obj, Variable):
+        return obj
+    return Variable(obj)

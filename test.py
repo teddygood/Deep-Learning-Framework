@@ -1,8 +1,6 @@
 import unittest
 import numpy as np
-from variable import Variable
-from function import square
-from numerical_diff import numerical_diff
+from autograd import Variable
 
 
 class SquareTest(unittest.TestCase):
